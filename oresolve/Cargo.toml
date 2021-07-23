@@ -1,0 +1,21 @@
+[package]
+name = "oresolve"
+version = "0.1.0"
+authors = ["2xsaiko <git@dblsaiko.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+origami-common = { path = "../origami-common" }
+clap = "3.0.0-beta.2"
+serde = { version = "1.0.118", features = ["derive"] }
+serde-xml-rs = "0.4.0"
+toml = { version = "0.5.8", features = ["preserve_order"] }
+reqwest = { version = "0.10.10", features = ["stream"] }
+tokio = { version = "0.2", features = ["full"] }
+url = { version = "2.2.0", features = ["serde"] }
+sha2 = "0.9.2"
+anyhow = "1.0.36"
+futures = "0.3.8"
+linked-hash-map = { version = "0.5.3", features = ["serde_impl"] }
