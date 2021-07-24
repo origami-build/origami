@@ -5,7 +5,7 @@ use async_codec::{Decode, DecodeResult, Encode, EncodeResult};
 
 pub mod fncall;
 pub mod streams;
-pub mod structs;
+pub use jvmapi_proto::structs;
 
 pub struct ProtocolCodec;
 

@@ -5,7 +5,7 @@ use std::time::Duration;
 use binserde::{BinDeserialize, BinDeserializer, BinSerialize, BinSerializer};
 use std::borrow::Cow;
 
-#[derive(BinDeserialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub enum FromJvm {
     ExecResult(ExecResult),
     Write(Write),
@@ -14,7 +14,7 @@ pub enum FromJvm {
     Close(Close),
 }
 
-#[derive(BinSerialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub enum ToJvm<'a> {
     Exec(Exec<'a>),
     WriteResult(WriteResult),
@@ -23,7 +23,7 @@ pub enum ToJvm<'a> {
     CloseResult(CloseResult),
 }
 
-#[derive(BinSerialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct Exec<'a> {
     pub tag: u32,
     pub main_class: Cow<'a, str>,
@@ -33,77 +33,77 @@ pub struct Exec<'a> {
     pub stdin: Option<u32>,
 }
 
-#[derive(BinDeserialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct ExecResult {
     pub tag: u32,
     pub result: Result<TaskInfo, ExecError>,
 }
 
-#[derive(BinDeserialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct TaskInfo {
     pub task_id: u32,
 }
 
-#[derive(BinDeserialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub enum ExecError {
     Failure(String),
     InvalidClass(String),
     NoMainFn(String),
 }
 
-#[derive(BinSerialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub enum Stdio {
     Null,
     Piped,
     Inherit,
 }
 
-#[derive(BinDeserialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct Read {
     pub tag: u32,
     pub stream: u32,
     pub size: u32,
 }
 
-#[derive(BinSerialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct ReadResult<'a> {
     pub tag: u32,
     pub result: Result<Cow<'a, [u8]>, IoError>,
 }
 
-#[derive(BinDeserialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct Write {
     pub tag: u32,
     pub stream: u32,
     pub data: Vec<u8>,
 }
 
-#[derive(BinSerialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct WriteResult {
     pub tag: u32,
     pub result: Result<usize, IoError>,
 }
 
-#[derive(BinSerialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct Wait {
     pub tag: u32,
     pub task: u32,
     pub timeout: Option<Duration>,
 }
 
-#[derive(BinDeserialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct WaitResult {
     pub tag: u32,
     pub timeout: bool,
 }
 
-#[derive(BinDeserialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct Close {
     pub tag: u32,
     pub stream: u32,
 }
 
-#[derive(BinSerialize)]
+#[derive(BinSerialize, BinDeserialize)]
 pub struct CloseResult {
     pub tag: u32,
     pub result: Result<(), IoError>,

@@ -1,0 +1,18 @@
+[package]
+name = "ojvmd"
+version = "0.1.0"
+authors = ["2xsaiko <git@dblsaiko.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+jvmapi = { path = "../jvmapi" }
+jvmapi-proto = { path = "../jvmapi-proto" }
+clap = "3.0.0-beta.2"
+serde = "1.0.126"
+serde_json = "1.0.64"
+async-std = "1.9.0"
+log = "0.4.14"
+simplelog = "0.10.0"
+futures = "0.3.15"

@@ -1,5 +1,5 @@
-pub mod javacli;
-pub mod protocol;
+mod javacli;
+mod protocol;
 pub mod framed;
 
 pub mod jvm;

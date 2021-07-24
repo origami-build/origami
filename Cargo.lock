@@ -849,12 +849,20 @@ dependencies = [
  "binserde 0.1.6 (git+https://github.com/2xsaiko/binserde.git?rev=8722a920f5e54f618092b51b7ca4488d1a54f2a1)",
  "bytes 1.0.1",
  "futures",
+ "jvmapi-proto",
  "log",
  "pin-project-lite 0.2.7",
  "serde",
  "serde_json",
  "simplelog",
  "thiserror",
+]
+
+[[package]]
+name = "jvmapi-proto"
+version = "0.1.0"
+dependencies = [
+ "binserde 0.1.6 (git+https://github.com/2xsaiko/binserde.git?rev=8722a920f5e54f618092b51b7ca4488d1a54f2a1)",
 ]
 
 [[package]]
@@ -1055,6 +1063,28 @@ checksum = "05499f3756671c15885fee9034446956fff3f243d6077b91e5767df161f766b3"
 dependencies = [
  "hermit-abi",
  "libc",
+]
+
+[[package]]
+name = "ojvm-launch"
+version = "0.1.0"
+dependencies = [
+ "clap",
+]
+
+[[package]]
+name = "ojvmd"
+version = "0.1.0"
+dependencies = [
+ "async-std",
+ "clap",
+ "futures",
+ "jvmapi",
+ "jvmapi-proto",
+ "log",
+ "serde",
+ "serde_json",
+ "simplelog",
 ]
 
 [[package]]
