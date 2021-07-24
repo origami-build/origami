@@ -1,9 +1,9 @@
+use std::fmt::Debug;
 use std::fs::File;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 use clap::{app_from_crate, Arg};
-use serde::export::fmt::Debug;
 use sha2::Digest;
 use tokio::io;
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -55,8 +55,6 @@ fn main() {
 
     let lock_file = File::create("origami.lock").unwrap();
     lock.write(lock_file).unwrap();
-
-
 }
 
 #[derive(Debug, Clone)]
