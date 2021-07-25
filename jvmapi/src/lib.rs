@@ -1,8 +1,11 @@
-pub mod framed;
-mod javacli;
-mod protocol;
+pub use jvm::command::JvmCommand;
+pub use jvm::direct::DirectJvm;
+pub use jvm::process::ProcessJvm;
 
+mod framed;
+pub mod javacli;
 pub mod jvm;
+mod protocol;
 
 #[cfg(not(any(target_os = "windows", target_os = "redox")))]
 const PATH_SEPARATOR: &str = ":";
@@ -30,3 +33,4 @@ mod test {
         task.wait().expect("Failed to wait for task to exit");
     }
 }
+

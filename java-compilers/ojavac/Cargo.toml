@@ -1,0 +1,13 @@
+[package]
+name = "ojavac"
+description = "Origami javac wrapper"
+version = "0.1.0"
+authors = ["2xsaiko <me@dblsaiko.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+common-args = { path = "../common-args" }
+jvmapi = { path = "../../jvmapi" }
+clap = "3.0.0-beta.2"

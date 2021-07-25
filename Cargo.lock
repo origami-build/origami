@@ -348,6 +348,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "common-args"
+version = "0.1.0"
+dependencies = [
+ "clap",
+]
+
+[[package]]
 name = "concurrent-queue"
 version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1065,6 +1072,24 @@ checksum = "05499f3756671c15885fee9034446956fff3f243d6077b91e5767df161f766b3"
 dependencies = [
  "hermit-abi",
  "libc",
+]
+
+[[package]]
+name = "oecj"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "common-args",
+ "jvmapi",
+]
+
+[[package]]
+name = "ojavac"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "common-args",
+ "jvmapi",
 ]
 
 [[package]]

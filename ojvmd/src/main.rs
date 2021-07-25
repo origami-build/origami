@@ -1,8 +1,6 @@
 use std::fs;
 use std::future::Future;
 use std::io;
-use std::io::Error;
-use std::path::PathBuf;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
@@ -129,7 +127,7 @@ impl Drop for Listener {
     }
 }
 
-fn accept_any(state: &mut usize, listeners: &[Listener]) -> AcceptAny {
+fn accept_any<'a>(state: &'a mut usize, listeners: &'a [Listener]) -> AcceptAny<'a> {
     AcceptAny { state, listeners }
 }
 
@@ -138,10 +136,10 @@ struct AcceptAny<'a> {
     listeners: &'a [Listener],
 }
 
-impl Future for AcceptAny {
+impl<'a> Future for AcceptAny<'a> {
     type Output = io::Result<(Stream, SocketAddr)>;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-
+        todo!()
     }
 }

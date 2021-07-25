@@ -3,6 +3,9 @@ lto = true
 
 [workspace]
 members = [
+    "java-compilers/common-args",
+    "java-compilers/ojavac",
+    "java-compilers/oecj",
     "origami-common",
     "oresolve",
     "omake",
