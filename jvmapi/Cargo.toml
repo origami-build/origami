@@ -21,3 +21,5 @@ thiserror = "1.0.25"
 #binserde = "0.1.6"
 binserde = { git = "https://github.com/2xsaiko/binserde.git", rev = "8722a920f5e54f618092b51b7ca4488d1a54f2a1" }
 simplelog = "0.10.0"
+lazy_static = "1.4.0"
+tempfile = "3.2.0"

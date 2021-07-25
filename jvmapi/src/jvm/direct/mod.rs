@@ -1,8 +1,13 @@
+use std::io::Write;
+use std::sync::{Arc, Mutex, MutexGuard, Weak};
+
 use async_std::task;
 use async_std::task::JoinHandle;
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 use futures::FutureExt;
+use lazy_static::lazy_static;
+use tempfile::{NamedTempFile, TempPath};
 
 use crate::framed::{FramedRead, FramedWrite};
 use crate::jvm::command::Stdio;
@@ -15,21 +20,48 @@ use crate::protocol::{fncall, ProtocolCodec};
 pub mod async_task;
 pub mod sync_task;
 
-// TODO
-const LIB_PATH: &str =
-    "/home/saiko/src/origami/task-dispatcher/build/libs/task-dispatcher-0.1.0.jar";
 const MAIN_CLASS: &str = "net.dblsaiko.origami.taskdispatcher.Main";
+
+/// Extracts the task-dispatcher.jar to a temporary path if necessary and
+/// returns that path.
+fn get_lib_path() -> Arc<TempPath> {
+    lazy_static! {
+        static ref RC: Mutex<Weak<TempPath>> = Mutex::new(Weak::new());
+    }
+
+    let mut a: MutexGuard<Weak<TempPath>> = RC.lock().unwrap();
+
+    if let Some(pb) = a.upgrade() {
+        pb
+    } else {
+        let mut tempfile = NamedTempFile::new().expect("Failed to create temp jar file");
+        let bytes = include_bytes!("../../../../task-dispatcher/build/libs/task-dispatcher.jar");
+        tempfile
+            .write_all(bytes)
+            .expect("Failed to write temp jar file");
+        let path = tempfile.into_temp_path();
+        let arc = Arc::new(path);
+        *a = Arc::downgrade(&arc);
+        arc
+    }
+}
 
 pub struct DirectJvm {
     process: AsyncJvmProcess,
     task: JoinHandle<()>,
     interface: JvmInterface<PacketWriter>,
+
+    // this needs to exist as long as the JVM is running on Windows (and also to
+    // potentially prevent having to extract it multiple times), so we keep it
+    // around
+    lib_path: Arc<TempPath>,
 }
 
 impl DirectJvm {
     pub fn spawn(mut host: ProcessJvm) -> Result<Self, Error> {
+        let lib_path = get_lib_path();
         host.with_java_arg("--enable-preview");
-        host.with_classpath(&[LIB_PATH]);
+        host.with_classpath(&[&**lib_path]);
 
         let mut process = block_on(
             async_command::JvmCommand::new(host, MAIN_CLASS)
@@ -53,6 +85,7 @@ impl DirectJvm {
             process,
             task,
             interface,
+            lib_path,
         })
     }
 }

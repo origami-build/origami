@@ -850,11 +850,13 @@ dependencies = [
  "bytes 1.0.1",
  "futures",
  "jvmapi-proto",
+ "lazy_static",
  "log",
  "pin-project-lite 0.2.7",
  "serde",
  "serde_json",
  "simplelog",
+ "tempfile",
  "thiserror",
 ]
 
