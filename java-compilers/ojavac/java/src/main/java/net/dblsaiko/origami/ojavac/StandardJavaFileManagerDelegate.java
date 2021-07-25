@@ -26,11 +26,6 @@ public class StandardJavaFileManagerDelegate implements StandardJavaFileManager 
     }
 
     @Override
-    public Iterable<? extends JavaFileObject> getJavaFileObjectsFromPaths(Iterable<? extends Path> paths) {
-        return this.delegate.getJavaFileObjectsFromPaths(paths);
-    }
-
-    @Override
     public Iterable<? extends JavaFileObject> getJavaFileObjects(Path... paths) {
         return this.delegate.getJavaFileObjects(paths);
     }
