@@ -31,6 +31,24 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
+tasks.withType(Jar) {
+    archiveFileName = project.provider {
+        var maybe = { String prefix, String value -> value ? prefix ? "-${value}" : value : "" }
+
+        String name = archiveBaseName.getOrElse("")
+        name += maybe(name, archiveAppendix.getOrNull())
+        name += maybe(name, archiveClassifier.getOrNull())
+
+        String extension = archiveExtension.getOrNull()
+        name += extension ? "." + extension : ""
+        return name
+    }
+
+    manifest {
+        attributes('Version': archiveVersion)
+    }
+}
+
 idea.project.settings {
     delegateActions {
         delegateBuildRunToGradle = false
