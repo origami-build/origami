@@ -42,7 +42,7 @@ impl Task for JavaTask {
             // that later.
             vec.extend(c.class_path().iter().map(|el| match el {
                 ClassPathEntry::File(path) => PathDep::new(path.clone()),
-                ClassPathEntry::Dir(path) => PathDep::new(path.clone()).with_dir(true, r"*.class"),
+                ClassPathEntry::Dir(path) => PathDep::new(path.clone()).with_dir(true, "*.class"),
             }));
         } else {
             // We know exactly which classes this reads from; we just need to
@@ -76,7 +76,7 @@ impl Task for JavaTask {
             vec.extend(
                 outfile_content
                     .lines()
-                    .filter_map(|el| el.strip_prefix("> "))
+                    .filter_map(|el| el.strip_prefix("-> "))
                     .map(|el| PathBuf::from(el).into()),
             );
         }

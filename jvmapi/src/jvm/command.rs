@@ -51,6 +51,10 @@ impl<T> JvmCommand<T> {
         self.inner.stdin = Some(cfg);
         self
     }
+
+    pub fn get_args(&self) -> &[String] {
+        &self.inner.args
+    }
 }
 
 impl<T> JvmCommand<T>

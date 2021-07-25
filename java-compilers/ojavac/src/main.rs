@@ -7,14 +7,20 @@ use clap::app_from_crate;
 use common_args::{read_props, AppExt};
 use jvmapi::jvm::JvmTask;
 use jvmapi::{JvmCommand, ProcessJvm};
+use std::io::Write;
 
 fn main() -> ExitStatusWrap {
     let matches = app_from_crate!().add_javac_common_args().get_matches();
 
     let props = read_props(&matches);
 
-    let jvm = ProcessJvm::new();
-    let mut cmd = JvmCommand::new(&jvm, "com.sun.tools.javac.Main");
+    let jar = include_bytes!("../java/build/libs/ojavac.jar");
+    let mut tf = tempfile::NamedTempFile::new().expect("failed to create temporary file");
+    tf.write_all(jar).expect("failed to write jar contents");
+
+    let mut jvm = ProcessJvm::new();
+    jvm.with_classpath(&[tf.path()]);
+    let mut cmd = JvmCommand::new(&jvm, "net.dblsaiko.origami.ojavac.Main");
 
     cmd.arg("-implicit:none");
 
@@ -45,9 +51,17 @@ fn main() -> ExitStatusWrap {
         cmd.arg(release);
     }
 
+    let javac_options_len = cmd.get_args().len();
+
     for file in props.in_files {
         cmd.arg(file.to_str().unwrap());
     }
+
+    let inputs_len = cmd.get_args().len() - javac_options_len;
+
+    cmd.arg(format!("{}", javac_options_len));
+    cmd.arg(format!("{}", inputs_len));
+    cmd.arg(props.manifest.map(|p| p.to_str().unwrap()).unwrap_or(""));
 
     let mut proc = cmd.spawn().expect("Failed to spawn javac");
     ExitStatusWrap(proc.wait().expect("Failed to wait for javac"))

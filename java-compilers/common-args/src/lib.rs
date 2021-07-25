@@ -43,6 +43,10 @@ impl<'a> AppExt for App<'a> {
                 .required(true)
                 .multiple(true)
                 .about("Java source file"),
+            Arg::new("manifest")
+                .long("manifest")
+                .value_name("file")
+                .about("Write dependency manifest"),
         ])
     }
 }
@@ -64,6 +68,7 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
     let package_root = matches.value_of_os("package-root").map(Path::new);
     let debug = matches.is_present("debug");
     let release = matches.value_of("release");
+    let manifest = matches.value_of_os("manifest").map(Path::new);
 
     CommonProps {
         in_files,
@@ -73,6 +78,7 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
         package_root,
         debug,
         release,
+        manifest,
     }
 }
 
@@ -84,4 +90,5 @@ pub struct CommonProps<'a> {
     pub package_root: Option<&'a Path>,
     pub debug: bool,
     pub release: Option<&'a str>,
+    pub manifest: Option<&'a Path>,
 }

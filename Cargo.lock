@@ -1090,6 +1090,7 @@ dependencies = [
  "clap",
  "common-args",
  "jvmapi",
+ "tempfile",
 ]
 
 [[package]]
