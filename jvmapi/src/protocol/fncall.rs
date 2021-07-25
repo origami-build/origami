@@ -1,10 +1,8 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::io;
-use std::pin::Pin;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
-use std::task::{Context, Poll};
 use std::time::Duration;
 
 use async_codec::ReadFrameError;
@@ -12,7 +10,7 @@ use async_std::channel;
 use async_std::stream::Stream;
 use async_std::sync::Mutex as AsyncMutex;
 use async_std::task::spawn;
-use futures::{AsyncReadExt, AsyncWrite, AsyncWriteExt, Sink, SinkExt, StreamExt};
+use futures::{AsyncReadExt, AsyncWriteExt, Sink, SinkExt, StreamExt};
 
 use crate::jvm::command::Stdio;
 use crate::protocol::streams::{AnonPipe, Inherit, Streams};

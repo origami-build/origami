@@ -1,6 +1,5 @@
 use std::io;
 use std::io::{Read, Write};
-use std::time::Duration;
 
 use futures::executor::block_on;
 use futures::{AsyncReadExt, AsyncWriteExt};
