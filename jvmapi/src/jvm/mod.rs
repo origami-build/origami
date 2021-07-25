@@ -97,3 +97,23 @@ impl JvmCommandInner {
         self.stdin
     }
 }
+
+impl<T> Jvm for &T
+where
+    T: Jvm,
+{
+    type Task = T::Task;
+    type AsyncTask = T::AsyncTask;
+
+    fn exec(&self, d: &JvmCommandInner, default_stdio: Stdio) -> Result<Self::Task, Error> {
+        (*self).exec(d, default_stdio)
+    }
+
+    fn exec_async<'a>(
+        &'a self,
+        d: &'a JvmCommandInner,
+        default_stdio: Stdio,
+    ) -> BoxFuture<'a, Result<Self::AsyncTask, Error>> {
+        (*self).exec_async(d, default_stdio)
+    }
+}
