@@ -1,7 +1,7 @@
 [package]
 name = "origami-common"
 version = "0.1.0"
-authors = ["2xsaiko <git@dblsaiko.net>"]
+authors = ["2xsaiko <me@dblsaiko.net>"]
 edition = "2018"
 
 [dependencies]

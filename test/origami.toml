@@ -1,7 +1,7 @@
 [project]
 name = "test"
 version = "0.1.0"
-authors = ["2xsaiko <git@dblsaiko.net>"]
+authors = ["2xsaiko <me@dblsaiko.net>"]
 
 [repositories]
 2xsaiko = "https://maven.dblsaiko.net/"
