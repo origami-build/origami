@@ -12,17 +12,19 @@ public class ProtocolWriter implements BinSerializer {
     private final OutputStream stream;
     private final OutputStream fileOut;
 
-    {
-        try {
-            this.fileOut = new FileOutputStream("out.bin");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
     public ProtocolWriter(OutputStream stream) {
         this.stream = stream;
+
+        if (!System.getenv().getOrDefault("ORIGAMI_PROTO_DEBUG", "").isBlank()) {
+            try {
+                this.fileOut = new FileOutputStream("out.bin");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        } else {
+            this.fileOut = null;
+        }
     }
 
     @Override
@@ -30,16 +32,22 @@ public class ProtocolWriter implements BinSerializer {
         this.writeVarInt(s.length());
         this.stream.write(s.getBytes(StandardCharsets.UTF_8));
         this.stream.flush();
-        this.fileOut.write(s.getBytes(StandardCharsets.UTF_8));
-        this.fileOut.flush();
+
+        if (this.fileOut != null) {
+            this.fileOut.write(s.getBytes(StandardCharsets.UTF_8));
+            this.fileOut.flush();
+        }
     }
 
     @Override
     public void writeU8(int u8) throws IOException {
         this.stream.write(u8);
         this.stream.flush();
-        this.fileOut.write(u8);
-        this.fileOut.flush();
+
+        if (this.fileOut != null) {
+            this.fileOut.write(u8);
+            this.fileOut.flush();
+        }
     }
 
     @Override
@@ -49,11 +57,14 @@ public class ProtocolWriter implements BinSerializer {
         this.stream.write(u32 >> 16);
         this.stream.write(u32 >> 24);
         this.stream.flush();
-        this.fileOut.write(u32);
-        this.fileOut.write(u32 >> 8);
-        this.fileOut.write(u32 >> 16);
-        this.fileOut.write(u32 >> 24);
-        this.fileOut.flush();
+
+        if (this.fileOut != null) {
+            this.fileOut.write(u32);
+            this.fileOut.write(u32 >> 8);
+            this.fileOut.write(u32 >> 16);
+            this.fileOut.write(u32 >> 24);
+            this.fileOut.flush();
+        }
     }
 
     @Override
@@ -89,8 +100,11 @@ public class ProtocolWriter implements BinSerializer {
 
         this.stream.write(buf, 0, idx);
         this.stream.flush();
-        this.fileOut.write(buf, 0, idx);
-        this.fileOut.flush();
+
+        if (this.fileOut != null) {
+            this.fileOut.write(buf, 0, idx);
+            this.fileOut.flush();
+        }
     }
 
 }
