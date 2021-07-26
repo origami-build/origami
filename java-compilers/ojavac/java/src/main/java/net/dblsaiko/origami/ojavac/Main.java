@@ -9,7 +9,6 @@ import java.util.Arrays;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
-import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
 public class Main {
@@ -29,7 +28,7 @@ public class Main {
             null,
             SliceIter.of(args, 0, optionsLen),
             null,
-            () -> Arrays.stream(args, optionsLen, optionsLen + compilationUnitsLen).map(el -> (JavaFileObject) new JavaFileObjectImpl(Path.of(el))).iterator()
+            fm.getJavaFileObjectsFromPaths(Arrays.stream(args, optionsLen, optionsLen + compilationUnitsLen).map(Path::of).toList())
         );
 
         boolean result = task.call();
