@@ -32,9 +32,11 @@ pub fn register(project: &mut Project) {
     let output_root = output.unwrap_or_else(|| PathBuf::from("."));
 
     let d = Rc::new(JavaData {
+        source_root: project.source_root().to_path_buf(),
+        build_root: project.build_root().to_path_buf(),
         inputs,
         output_root,
-        javac_path: PathBuf::from("/usr/bin/javac"),
+        javac_path: PathBuf::from("/home/saiko/src/origami/target/debug/ojavac"),
     });
 
     let plugin = JavaPlugin { data: d.clone() };
@@ -46,6 +48,8 @@ pub fn register(project: &mut Project) {
 
 #[derive(Debug)]
 pub struct JavaData {
+    source_root: PathBuf,
+    build_root: PathBuf,
     inputs: Vec<PathBuf>,
     output_root: PathBuf,
     javac_path: PathBuf,
@@ -103,20 +107,31 @@ pub struct JavaExtension {
 }
 
 impl JavaExtension {
-    pub fn exec_javac(&self, input: &Path, output_root: &Path) -> Result<(), ExecError> {
+    pub fn exec_javac(&self, input: &Path, output_root: &Path, manifest_path: &Path) -> Result<(), ExecError> {
+        if let Some(manifest_dir) = manifest_path.parent() {
+            fs::create_dir_all(manifest_dir)?;
+        }
+
         let mut cmd = Command::new(&self.data.javac_path);
 
+        for entry in &self.data.inputs {
+            cmd.arg("--include");
+            cmd.arg(self.data.source_root.join(entry));
+        }
+
         for entry in self.class_path() {
-            cmd.arg("--class-path");
             let path = match entry {
                 ClassPathEntry::File(path) => path,
                 ClassPathEntry::Dir(path) => path,
             };
-            cmd.arg(path);
+            cmd.arg("--link");
+            cmd.arg(&path);
         }
 
-        cmd.arg("-d");
+        cmd.arg("--out-dir");
         cmd.arg(output_root);
+        cmd.arg("--manifest");
+        cmd.arg(manifest_path);
         cmd.arg(input);
 
         let map = cmd.get_args().into_iter().map(|s| s.to_string_lossy()).collect::<Vec<_>>();

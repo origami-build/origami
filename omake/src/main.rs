@@ -42,10 +42,12 @@ fn main() {
 
         let ctx = Context::new(&project);
 
-        println!("tasks = {:#?}", tasks);
+        // println!("tasks = {:#?}", tasks);
 
         for task in tasks {
-            task.make(&ctx).unwrap();
+            if task.needs_exec(&ctx) {
+                task.make(&ctx).unwrap();
+            }
         }
     }
 }
@@ -56,7 +58,7 @@ fn collect_directories(path: &Path) -> io::Result<Vec<PathBuf>> {
     let root_file = path.join("obuildroot");
     let s = fs::read_to_string(root_file)?;
     for line in s.lines() {
-        if line.starts_with(";") || line.trim().is_empty() {
+        if line.starts_with(';') || line.trim().is_empty() {
             continue;
         }
 

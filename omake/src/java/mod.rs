@@ -1,11 +1,11 @@
-use std::fs::{DirEntry, File, FileType, ReadDir};
-use std::io::{Error, Write};
+use std::fs::File;
+use std::io::Write;
 use std::ops::{Generator, GeneratorState};
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
 use std::{fs, io};
 
-use crate::java::plugin::{ClassPathEntry, JavaData, JavaExtension};
+use crate::java::plugin::{ClassPathEntry, JavaExtension};
 use crate::task::{input_changed, input_changed_multi, Context, PathDep, Task};
 
 pub mod plugin;
@@ -20,9 +20,9 @@ pub struct JavaTask {
 impl Task for JavaTask {
     fn make(&self, ctx: &Context) -> Result<(), String> {
         let c = ctx.get_extension::<JavaExtension>().unwrap();
-        let temp_dir = ctx.create_temp_dir();
+        // let temp_dir = ctx.create_temp_dir();
         let input_file = self.input_file();
-        c.exec_javac(&input_file, &temp_dir).unwrap();
+        c.exec_javac(&input_file, &self.output_root, &self.manifest_path()).unwrap();
 
         Ok(())
     }
@@ -33,7 +33,8 @@ impl Task for JavaTask {
 
         vec.push(PathDep::new(self.input_file()));
 
-        let manifest_outdated = input_changed(&self.input_file(), &self.manifest_path()).unwrap();
+        let manifest = self.manifest_path();
+        let manifest_outdated = input_changed(&self.input_file(), &manifest).unwrap();
 
         if manifest_outdated {
             // We don't know what classes this class uses, so we'll just assume
@@ -45,8 +46,13 @@ impl Task for JavaTask {
                 ClassPathEntry::Dir(path) => PathDep::new(path.clone()).with_dir(true, "*.class"),
             }));
         } else {
-            // We know exactly which classes this reads from; we just need to
-            // map them to files.
+            let manifest_content = std::fs::read_to_string(&manifest).unwrap();
+            vec.extend(
+                manifest_content
+                    .lines()
+                    .filter_map(|el| el.strip_prefix("<- "))
+                    .map(|el| PathBuf::from(el).into()),
+            );
         }
 
         vec
@@ -88,7 +94,7 @@ impl Task for JavaTask {
     }
 
     fn needs_exec(&self, ctx: &Context) -> bool {
-        input_changed(&self.input_file(), &self.manifest_path()).unwrap_or(true)
+        input_changed_multi(&self.inputs(ctx), &self.outputs(ctx)).unwrap_or(true)
     }
 }
 
