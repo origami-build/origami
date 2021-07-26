@@ -38,7 +38,7 @@ fn main() -> ExitStatusWrap {
     }
 
     if let Some(out_dir) = props.out_dir {
-        cmd.arg("-s");
+        cmd.arg("-d");
         cmd.arg(out_dir.to_str().unwrap());
     }
 
