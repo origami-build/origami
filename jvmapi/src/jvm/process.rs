@@ -1,6 +1,6 @@
 use std::ffi::{OsStr, OsString};
 use std::io;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 use std::process::{Child, ChildStderr, ChildStdin, ChildStdout, Command, ExitStatus, Stdio};
 
 use futures::future::BoxFuture;
@@ -9,6 +9,8 @@ use futures::FutureExt;
 use crate::jvm;
 use crate::jvm::{command, AsyncJvmTask, Error, Jvm, JvmTask};
 
+/// A [`Jvm`] that runs each task in a new JVM process. This is comparable to
+/// calling `java` directly.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ProcessJvm {
     java_path: PathBuf,
@@ -17,6 +19,7 @@ pub struct ProcessJvm {
 }
 
 impl ProcessJvm {
+    /// Creates a new [`ProcessJvm`] with default settings.
     pub fn new() -> Self {
         ProcessJvm {
             java_path: PathBuf::from("java"),
@@ -25,6 +28,7 @@ impl ProcessJvm {
         }
     }
 
+    /// Sets the java executable to `path`
     pub fn with_java_executable<P>(&mut self, path: P) -> &mut Self
     where
         P: Into<PathBuf>,
@@ -33,10 +37,12 @@ impl ProcessJvm {
         self
     }
 
-    pub fn java_executable(&self) -> &PathBuf {
+    /// Returns the path to the java executable used to launch the program.
+    pub fn java_executable(&self) -> &Path {
         &self.java_path
     }
 
+    /// Adds the `paths` to the classpath for the JVM.
     pub fn with_classpath<I>(&mut self, paths: I) -> &mut Self
     where
         I: IntoIterator,
@@ -49,12 +55,13 @@ impl ProcessJvm {
         self
     }
 
+    /// Returns the classpath used to launch the program.
     pub fn classpath(&self) -> &[PathBuf] {
         &self.classpath
     }
-}
 
-impl ProcessJvm {
+    /// Adds a java argument. These will be passed to the Java Virtual Machine,
+    /// not the launched programs.
     pub fn with_java_arg<S>(&mut self, arg: S) -> &mut Self
     where
         S: Into<OsString>,
@@ -63,6 +70,8 @@ impl ProcessJvm {
         self
     }
 
+    /// Adds java arguments. These will be passed to the Java Virtual Machine,
+    /// not the launched programs.
     pub fn with_java_args<I>(&mut self, args: I) -> &mut Self
     where
         I: IntoIterator,
@@ -102,7 +111,7 @@ impl Jvm for ProcessJvm {
         let child = Command::new(&self.java_path)
             .args(&self.java_args)
             .args(crate::javacli::jvm_args(&self.classpath, d.main_class()))
-            .args(d.args().into_iter().map(OsStrWrap))
+            .args(d.args().iter().map(OsStrWrap))
             .stdout(conv_stdio(d.stdout()))
             .stderr(conv_stdio(d.stderr()))
             .stdin(conv_stdio(d.stdin()))

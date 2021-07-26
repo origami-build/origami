@@ -8,6 +8,7 @@ use crate::jvm::direct::{async_task, PacketWriter};
 use crate::jvm::JvmTask;
 use crate::protocol::fncall::JvmInterface;
 
+/// A spawned JVM task.
 pub struct Task {
     pub(super) id: u32,
     pub(super) stdout: Option<Stdout>,
@@ -22,19 +23,26 @@ impl JvmTask for Task {
     type Stdin = Stdin;
     type ExitStatus = ();
 
+    /// Wait for the task to exit.
     fn wait(&mut self) -> io::Result<Self::ExitStatus> {
         block_on(self.interface.wait(self.id, None));
         Ok(())
     }
 
+    /// The standard output stream, if the process was spawned with
+    /// [`Stdio::Piped`], else None.
     fn stdout(&mut self) -> &mut Option<Self::Stdout> {
         &mut self.stdout
     }
 
+    /// The standard error stream, if the process was spawned with
+    /// [`Stdio::Piped`], else None.
     fn stderr(&mut self) -> &mut Option<Self::Stderr> {
         &mut self.stderr
     }
 
+    /// The standard input stream, if the process was spawned with
+    /// [`Stdio::Piped`], else None.
     fn stdin(&mut self) -> &mut Option<Self::Stdin> {
         &mut self.stdin
     }

@@ -22,6 +22,8 @@ impl Streams {
         }
     }
 
+    /// Allocate a new [`AnonPipe`]. Optionally inherits from one of the current
+    /// process's standard IO streams.
     pub fn alloc(&mut self, inherit: Option<Inherit>) -> AnonPipe {
         let shared = match inherit {
             None => AnonPipeShared::Impl(AnonPipeImpl {
@@ -44,25 +46,39 @@ impl Streams {
         pipe
     }
 
+    /// Frees an [`AnonPipe`] by its ID. If there's no pipe by the given ID,
+    /// does nothing.
     pub fn free(&mut self, id: u32) {
         if let Some(pipe) = self.pipes.remove(&id) {
             pipe.close();
         }
     }
 
+    /// Gets an [`AnonPipe`] by its ID. If no pipe by that ID exists, returns
+    /// `None`.
     pub fn by_id(&self, id: u32) -> Option<AnonPipe> {
         self.pipes.get(&id).cloned()
     }
 }
 
 pub enum Inherit {
+    /// The created [`AnonPipe`] will write to the current process's stdout
+    /// stream. Reading operations will return EOF.
     Stdout,
+
+    /// The created [`AnonPipe`] will write to the current process's stderr
+    /// stream. Reading operations will return EOF.
     Stderr,
+
+    /// The created [`AnonPipe`] will read from the current process's stdin
+    /// stream. Writing operations will return EOF.
     Stdin,
 }
 
+/// The maximum buffer size for an [`AnonPipe`].
 const MAX_LEN: usize = 4096;
 
+/// An anonymous pipe, which can be written to or read from.
 #[derive(Debug, Clone)]
 pub struct AnonPipe {
     id: u32,
@@ -86,31 +102,28 @@ struct AnonPipeImpl {
 }
 
 impl AnonPipe {
+    /// Returns the ID of this `AnonPipe`.
     pub fn id(&self) -> u32 {
         self.id
     }
 
+    /// Returns whether this pipe is a normal pipe, that is, not connected to
+    /// stdout/stderr/stdin.
     pub fn is_normal(&self) -> bool {
-        match &*self.shared.lock().unwrap() {
-            AnonPipeShared::Impl(_) => true,
-            _ => false,
-        }
+        matches!(&*self.shared.lock().unwrap(), AnonPipeShared::Impl(_))
     }
 
     fn close(&self) {
-        match &mut *self.shared.lock().unwrap() {
-            AnonPipeShared::Impl(imp) => {
-                imp.closed = true;
+        if let AnonPipeShared::Impl(imp) = &mut *self.shared.lock().unwrap() {
+            imp.closed = true;
 
-                if let Some(waker) = imp.read_waker.take() {
-                    waker.wake();
-                }
-
-                if let Some(waker) = imp.write_waker.take() {
-                    waker.wake();
-                }
+            if let Some(waker) = imp.read_waker.take() {
+                waker.wake();
             }
-            _ => {}
+
+            if let Some(waker) = imp.write_waker.take() {
+                waker.wake();
+            }
         }
     }
 }

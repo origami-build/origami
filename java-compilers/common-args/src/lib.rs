@@ -83,12 +83,29 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
 }
 
 pub struct CommonProps<'a> {
+    /// The source files to be compiled.
     pub in_files: Vec<&'a Path>,
+
+    /// The directories the compiler should look for source files referred to by
+    /// the input files in.
     pub include: Vec<&'a Path>,
+
+    /// The directories or JAR files the compiler should look for class files
+    /// referred to by the input files in.
     pub link: Vec<&'a Path>,
+
+    /// The directory to place compiled files in.
     pub out_dir: Option<&'a Path>,
+
     pub package_root: Option<&'a Path>,
+
+    /// Whether to include debug information in the compiled files.
     pub debug: bool,
+
+    /// The JVM release version to compile for.
     pub release: Option<&'a str>,
+    
+    /// The path to output a manifest of input and output files for. If None,
+    /// does not write the manifest.
     pub manifest: Option<&'a Path>,
 }

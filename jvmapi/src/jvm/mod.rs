@@ -13,12 +13,17 @@ pub mod process;
 pub mod async_command;
 pub mod command;
 
+/// Trait that represents a JVM that tasks can be executed on.
 pub trait Jvm {
     type Task: JvmTask;
     type AsyncTask: AsyncJvmTask;
 
+    /// Execute the given [`JvmCommandInner`]. Do not call directly, instead use
+    /// [`JvmCommand`].
     fn exec(&self, d: &JvmCommandInner, default_stdio: Stdio) -> Result<Self::Task, Error>;
 
+    /// Execute the given [`JvmCommandInner`] asynchronously. Do not call
+    /// directly, instead use [`JvmCommand`].
     fn exec_async<'a>(
         &'a self,
         d: &'a JvmCommandInner,
@@ -68,6 +73,7 @@ pub enum Error {
     Failure(String),
 }
 
+/// Contains the options built by the [`JvmCommand`] builder.
 pub struct JvmCommandInner {
     main_class: String,
     args: Vec<String>,
@@ -77,22 +83,31 @@ pub struct JvmCommandInner {
 }
 
 impl JvmCommandInner {
+    /// Returns the path to the Java class to execute, using `.` as the package
+    /// separator.
     pub fn main_class(&self) -> &str {
         &self.main_class
     }
 
+    /// Returns the arguments to pass to the main Java class.
     pub fn args(&self) -> &[String] {
         &self.args
     }
 
+    /// Returns how the standard output stream should be hooked up. A value of
+    /// None means this option is unset, use the default passed to [`Jvm::exec()`].
     pub fn stdout(&self) -> Option<Stdio> {
         self.stdout
     }
 
+    /// Returns how the standard error stream should be hooked up. A value of
+    /// None means this option is unset, use the default passed to [`Jvm::exec()`].
     pub fn stderr(&self) -> Option<Stdio> {
         self.stderr
     }
 
+    /// Returns how the standard input stream should be hooked up. A value of
+    /// None means this option is unset, use the default passed to [`Jvm::exec()`].
     pub fn stdin(&self) -> Option<Stdio> {
         self.stdin
     }

@@ -33,4 +33,3 @@ mod test {
         task.wait().expect("Failed to wait for task to exit");
     }
 }
-

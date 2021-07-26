@@ -3,6 +3,8 @@ use std::path::Path;
 
 use crate::PATH_SEPARATOR;
 
+/// Builds the argument to java's `-classpath` option. If the classpath is empty,
+/// returns None.
 pub fn build_classpath<I>(classpath: I) -> Option<OsString>
 where
     I: IntoIterator,
@@ -22,6 +24,8 @@ where
     })
 }
 
+/// Returns the arguments to pass to the java process for the given classpath
+/// and main class.
 pub fn jvm_args<I>(classpath: I, main_class: &str) -> Vec<OsString>
 where
     I: IntoIterator,

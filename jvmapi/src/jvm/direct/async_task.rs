@@ -11,6 +11,7 @@ use crate::jvm::AsyncJvmTask;
 use crate::protocol::fncall::JvmInterface;
 use crate::protocol::streams::AnonPipe;
 
+/// A spawned JVM task.
 pub struct Task {
     pub(super) id: u32,
     pub(super) stdout: Option<Stdout>,
@@ -25,6 +26,7 @@ impl AsyncJvmTask for Task {
     type Stdin = Stdin;
     type ExitStatus = ();
 
+    /// Wait for the task to exit.
     fn wait(&mut self) -> BoxFuture<'_, io::Result<Self::ExitStatus>> {
         self.interface
             .wait(self.id, None)
@@ -32,14 +34,20 @@ impl AsyncJvmTask for Task {
             .boxed()
     }
 
+    /// The standard output stream, if the process was spawned with
+    /// [`Stdio::Piped`], else None.
     fn stdout(&mut self) -> &mut Option<Self::Stdout> {
         &mut self.stdout
     }
 
+    /// The standard error stream, if the process was spawned with
+    /// [`Stdio::Piped`], else None.
     fn stderr(&mut self) -> &mut Option<Self::Stderr> {
         &mut self.stderr
     }
 
+    /// The standard input stream, if the process was spawned with
+    /// [`Stdio::Piped`], else None.
     fn stdin(&mut self) -> &mut Option<Self::Stdin> {
         &mut self.stdin
     }

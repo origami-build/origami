@@ -32,6 +32,7 @@ impl<T> Default for AsyncQueueInner<T> {
     }
 }
 
+/// Tracks pending responses via their expected tags.
 struct AsyncQueue<T> {
     inner: Arc<Mutex<AsyncQueueInner<T>>>,
 }
@@ -103,16 +104,29 @@ impl Calls {
         })
     }
 
+    /// Called when receiving a [`Write`] message. Writes the specified bytes
+    /// into the stream with the given ID. This will always write at least one
+    /// byte.
+    ///
+    /// Returns the amount of bytes written. A value of 0 means the stream has
+    /// been closed.
     async fn write(&self, stream: u32, buf: &[u8]) -> io::Result<usize> {
         let mut stream = self.get_stream(stream)?;
         stream.write(buf).await
     }
 
+    /// Called when receiving a [`Read`] message. Reads up to the specified
+    /// amount of bytes from the stream with the given ID into the buffer. This
+    /// will always read at least one byte.
+    ///
+    /// Returns the amount of bytes read. A value of 0 means the stream has been
+    /// closed.
     async fn read(&self, stream: u32, buf: &mut [u8]) -> io::Result<usize> {
         let mut stream = self.get_stream(stream)?;
         stream.read(buf).await
     }
 
+    /// Called when receiving a [`Close`] message. Closes the specified stream.
     async fn close(&self, stream: u32) -> io::Result<()> {
         let mut stream = self.get_stream(stream)?;
         stream.close().await
@@ -125,6 +139,7 @@ where
     U: Sink<ToJvm<'static>> + Send + Unpin + 'static,
     <U as Sink<ToJvm<'static>>>::Error: Debug,
 {
+    /// Listen for incoming messages and handle them.
     pub async fn run(mut self) {
         while let Some(next) = self.input.next().await {
             let next = match next {
@@ -222,6 +237,8 @@ where
     T: Sink<ToJvm<'static>> + Unpin,
     <T as Sink<ToJvm<'static>>>::Error: Debug,
 {
+    /// Allocates streams, sends an [`Exec`] message to the JVM and waits for
+    /// the response.
     pub async fn exec(
         &self,
         main_class: &str,
@@ -282,6 +299,7 @@ where
         }
     }
 
+    /// Sends a [`Wait`] message to the JVM and waits for the response.
     pub async fn wait(&self, task: u32, timeout: Option<Duration>) -> bool {
         let tag = self.tag.fetch_add(1, Ordering::Relaxed);
         let packet = ToJvm::Wait(Wait { tag, task, timeout });

@@ -46,6 +46,7 @@ fn get_lib_path() -> Arc<TempPath> {
     }
 }
 
+/// A [`Jvm`] that runs all submitted tasks in the same process.
 pub struct DirectJvm {
     process: AsyncJvmProcess,
     task: JoinHandle<()>,
@@ -58,6 +59,8 @@ pub struct DirectJvm {
 }
 
 impl DirectJvm {
+    /// Spawns a JVM using the given [`ProcessJvm`] that runs the dispatcher
+    /// that accepts submitted tasks.
     pub fn spawn(mut host: ProcessJvm) -> Result<Self, Error> {
         let lib_path = get_lib_path();
         host.with_java_arg("--enable-preview");

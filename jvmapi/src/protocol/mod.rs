@@ -7,6 +7,7 @@ pub mod fncall;
 pub mod streams;
 pub use jvmapi_proto::structs;
 
+/// The protocol codec. Encodes ToJvm messages and decodes FromJvm messages.
 pub struct ProtocolCodec;
 
 impl Encode for ProtocolCodec {
@@ -89,25 +90,13 @@ impl Decode for ProtocolCodec {
 
         impl<'a> Read for EofTracker<'a> {
             fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-                // println!(
-                //     "buf.len() = {}, self.buffer.position() = {}, self.buffer.get_ref.len() = {}",
-                //     buf.len(),
-                //     self.buffer.position(),
-                //     self.buffer.get_ref().len()
-                // );
-                if buf.len() > 0 && self.buffer.position() == self.buffer.get_ref().len() as u64 {
+                if !buf.is_empty() && self.buffer.position() == self.buffer.get_ref().len() as u64 {
                     self.hit_eof = true;
                 }
 
                 self.buffer.read(buf)
             }
         }
-
-        // for x in &*buffer {
-        //     eprint!("{:02X}", x);
-        // }
-        //
-        // eprintln!();
 
         let mut reader = EofTracker {
             buffer: Cursor::new(buffer),
