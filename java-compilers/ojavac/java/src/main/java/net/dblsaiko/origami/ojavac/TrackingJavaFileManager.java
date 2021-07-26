@@ -1,6 +1,7 @@
 package net.dblsaiko.origami.ojavac;
 
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -108,13 +109,13 @@ public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
             // ignore jrt, we can't figure out the real path of the file anyway
             case "jrt" -> null;
             case "jar" -> {
-                String schemeSpecificPart = uri.getSchemeSpecificPart();
-
                 try {
-                    yield Path.of(new URI(schemeSpecificPart.substring(0, schemeSpecificPart.indexOf('!'))));
-                } catch (URISyntaxException e) {
-                    // shouldn't happen because we're getting this from a valid
-                    // URI that comes from Java code... but who knows
+                    if (uri.toURL().openConnection() instanceof JarURLConnection c) {
+                        yield Path.of(c.getJarFileURL().toURI());
+                    } else {
+                        throw new IllegalStateException("Jar URI didn't open a JarURLConnection");
+                    }
+                } catch (IOException | URISyntaxException e) {
                     throw new RuntimeException(e);
                 }
             }
