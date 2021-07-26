@@ -26,7 +26,7 @@ public class Main {
             null,
             fm,
             null,
-            SliceIter.of(args, 0, optionsLen),
+            iterSlice(args, 0, optionsLen),
             null,
             fm.getJavaFileObjectsFromPaths(Arrays.stream(args, optionsLen, optionsLen + compilationUnitsLen).map(Path::of).toList())
         );
@@ -38,8 +38,12 @@ public class Main {
         }
 
         if (!manifestPath.isBlank()) {
-            writeManifest(SliceIter.of(args, optionsLen, optionsLen + compilationUnitsLen), fm, Path.of(manifestPath));
+            writeManifest(iterSlice(args, optionsLen, optionsLen + compilationUnitsLen), fm, Path.of(manifestPath));
         }
+    }
+
+    private static <T> Iterable<T> iterSlice(T[] array, int start, int endExclusive) {
+        return () -> Arrays.stream(array, start, endExclusive).iterator();
     }
 
     private static void writeManifest(Iterable<String> files, TrackingJavaFileManager fm, Path manifestPath) {
