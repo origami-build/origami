@@ -18,8 +18,7 @@ futures = { version = "0.3.15", features = ["async-await"] }
 log = "0.4.14"
 pin-project-lite = "0.2.6"
 thiserror = "1.0.25"
-#binserde = "0.1.6"
-binserde = { git = "https://github.com/2xsaiko/binserde.git", rev = "8722a920f5e54f618092b51b7ca4488d1a54f2a1" }
+binserde = "0.1.7"
 simplelog = "0.10.0"
 lazy_static = "1.4.0"
 tempfile = "3.2.0"

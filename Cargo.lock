@@ -177,21 +177,11 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
 name = "binserde"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6075f2d7ac36edbebeed3e20f2b7cbd3a833ffb96b998314a52bfa42fb272a9"
+checksum = "01e11dfc17df5cab0b8a859ad0acd95130bffbe3711ff60c487293b2af50a199"
 dependencies = [
- "binserde_derive 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "byteorder",
- "thiserror",
-]
-
-[[package]]
-name = "binserde"
-version = "0.1.6"
-source = "git+https://github.com/2xsaiko/binserde.git?rev=8722a920f5e54f618092b51b7ca4488d1a54f2a1#8722a920f5e54f618092b51b7ca4488d1a54f2a1"
-dependencies = [
- "binserde_derive 0.1.4 (git+https://github.com/2xsaiko/binserde.git?rev=8722a920f5e54f618092b51b7ca4488d1a54f2a1)",
+ "binserde_derive",
  "byteorder",
  "thiserror",
 ]
@@ -201,17 +191,6 @@ name = "binserde_derive"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d3fa6b29c64e0a4f5b2bb3955da5367dda99f147edd87299e3a23b5547c42a7"
-dependencies = [
- "darling",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "binserde_derive"
-version = "0.1.4"
-source = "git+https://github.com/2xsaiko/binserde.git?rev=8722a920f5e54f618092b51b7ca4488d1a54f2a1#8722a920f5e54f618092b51b7ca4488d1a54f2a1"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -475,6 +454,12 @@ checksum = "77b705829d1e87f762c2df6da140b26af5839e1033aa84aa5f56bb688e4e1bdb"
 dependencies = [
  "instant",
 ]
+
+[[package]]
+name = "fixedbitset"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "398ea4fabe40b9b0d885340a2a991a44c8a645624075ad966d21f88688e2b69e"
 
 [[package]]
 name = "fnv"
@@ -853,7 +838,7 @@ dependencies = [
  "async-codec",
  "async-process",
  "async-std",
- "binserde 0.1.6 (git+https://github.com/2xsaiko/binserde.git?rev=8722a920f5e54f618092b51b7ca4488d1a54f2a1)",
+ "binserde",
  "bytes 1.0.1",
  "futures",
  "jvmapi-proto",
@@ -871,7 +856,7 @@ dependencies = [
 name = "jvmapi-proto"
 version = "0.1.0"
 dependencies = [
- "binserde 0.1.6 (git+https://github.com/2xsaiko/binserde.git?rev=8722a920f5e54f618092b51b7ca4488d1a54f2a1)",
+ "binserde",
 ]
 
 [[package]]
@@ -1121,6 +1106,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "log",
+ "petgraph",
  "serde",
  "thiserror",
  "toml",
@@ -1194,7 +1180,7 @@ dependencies = [
 name = "origami-common"
 version = "0.1.0"
 dependencies = [
- "binserde 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "binserde",
 ]
 
 [[package]]
@@ -1214,6 +1200,16 @@ name = "percent-encoding"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
+
+[[package]]
+name = "petgraph"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a13a2fa9d0b63e5f22328828741e523766fff0ee9e779316902290dff3f824f"
+dependencies = [
+ "fixedbitset",
+ "indexmap",
+]
 
 [[package]]
 name = "pin-project"
@@ -1818,9 +1814,9 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
 name = "type-map"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6d3364c5e96cb2ad1603037ab253ddd34d7fb72a58bdddf4b7350760fc69a46"
+checksum = "deb68604048ff8fa93347f02441e4487594adc20bb8a084f9e564d2b827a0a9f"
 dependencies = [
  "rustc-hash",
 ]
