@@ -13,13 +13,13 @@ impl<'a> AppExt for App<'a> {
                 .short('I')
                 .long("include")
                 .value_name("path")
-                .multiple(true)
+                .multiple_occurrences(true)
                 .about("Include source file paths"),
             Arg::new("link")
                 .short('l')
                 .long("link")
                 .value_name("path")
-                .multiple(true)
+                .multiple_occurrences(true)
                 .about("Link against compiled JAR/class file paths"),
             Arg::new("out-dir")
                 .short('o')
@@ -43,10 +43,14 @@ impl<'a> AppExt for App<'a> {
                 .required(true)
                 .multiple(true)
                 .about("Java source file"),
-            Arg::new("manifest")
-                .long("manifest")
+            Arg::new("write-deps")
+                .long("write-deps")
                 .value_name("file")
                 .about("Write dependency manifest"),
+            Arg::new("write-makedeps")
+                .long("write-makedeps")
+                .value_name("file")
+                .about("Write dependency manifest in Make format"),
         ])
     }
 }
@@ -68,7 +72,8 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
     let package_root = matches.value_of_os("package-root").map(Path::new);
     let debug = matches.is_present("debug");
     let release = matches.value_of("release");
-    let manifest = matches.value_of_os("manifest").map(Path::new);
+    let write_deps = matches.value_of_os("write-deps").map(Path::new);
+    let write_makedeps = matches.value_of_os("write-makedeps").map(Path::new);
 
     CommonProps {
         in_files,
@@ -78,7 +83,8 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
         package_root,
         debug,
         release,
-        manifest,
+        write_deps,
+        write_makedeps,
     }
 }
 
@@ -107,5 +113,9 @@ pub struct CommonProps<'a> {
     
     /// The path to output a manifest of input and output files for. If None,
     /// does not write the manifest.
-    pub manifest: Option<&'a Path>,
+    pub write_deps: Option<&'a Path>,
+
+    /// The path to output a manifest of input and output files for. If None,
+    /// does not write the manifest.
+    pub write_makedeps: Option<&'a Path>,
 }

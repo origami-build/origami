@@ -33,9 +33,11 @@ tasks.withType(Jar) {
     }
 
     manifest {
-        attributes('Version': archiveVersion)
+        attributes('Implementation-Version': archiveVersion)
     }
 }
+
+sourceSets.main.java.srcDirs = ["src"]
 
 idea.project.settings {
     delegateActions {

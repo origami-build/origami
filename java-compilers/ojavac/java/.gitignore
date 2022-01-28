@@ -1,2 +1,5 @@
 .gradle/
 build/
+src/**/*.class
+src/**/*.d
+ojavac.jar

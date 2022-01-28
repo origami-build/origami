@@ -61,7 +61,8 @@ fn main() -> ExitStatusWrap {
 
     cmd.arg(format!("{}", javac_options_len));
     cmd.arg(format!("{}", inputs_len));
-    cmd.arg(props.manifest.map(|p| p.to_str().unwrap()).unwrap_or(""));
+    cmd.arg(props.write_deps.map(|p| p.to_str().unwrap()).unwrap_or(""));
+    cmd.arg(props.write_makedeps.map(|p| p.to_str().unwrap()).unwrap_or(""));
 
     let mut proc = cmd.spawn().expect("Failed to spawn javac");
     ExitStatusWrap(proc.wait().expect("Failed to wait for javac"))
