@@ -14,7 +14,7 @@ fn main() -> ExitStatusWrap {
 
     let props = read_props(&matches);
 
-    let jar = include_bytes!("../java/build/libs/ojavac.jar");
+    let jar = include_bytes!("../java/ojavac.jar");
     let mut tf = tempfile::NamedTempFile::new().expect("failed to create temporary file");
     tf.write_all(jar).expect("failed to write jar contents");
 
