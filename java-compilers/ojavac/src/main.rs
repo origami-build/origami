@@ -1,5 +1,6 @@
 #![feature(termination_trait_lib)]
 
+use std::io::Write;
 use std::process::{ExitStatus, Termination};
 
 use clap::app_from_crate;
@@ -7,7 +8,6 @@ use clap::app_from_crate;
 use common_args::{read_props, AppExt};
 use jvmapi::jvm::JvmTask;
 use jvmapi::{JvmCommand, ProcessJvm};
-use std::io::Write;
 
 fn main() -> ExitStatusWrap {
     let matches = app_from_crate!().add_javac_common_args().get_matches();
@@ -32,11 +32,6 @@ fn main() -> ExitStatusWrap {
         cmd.arg(include.to_str().unwrap());
     }
 
-    if let Some(link) = &link {
-        cmd.arg("-classpath");
-        cmd.arg(link.to_str().unwrap());
-    }
-
     if let Some(out_dir) = props.out_dir {
         cmd.arg("-d");
         cmd.arg(out_dir.to_str().unwrap());
@@ -59,10 +54,18 @@ fn main() -> ExitStatusWrap {
 
     let inputs_len = cmd.get_args().len() - javac_options_len;
 
+    cmd.arg(link.as_deref().map(|x| x.to_str().unwrap()).unwrap_or("."));
     cmd.arg(format!("{}", javac_options_len));
     cmd.arg(format!("{}", inputs_len));
     cmd.arg(props.write_deps.map(|p| p.to_str().unwrap()).unwrap_or(""));
-    cmd.arg(props.write_makedeps.map(|p| p.to_str().unwrap()).unwrap_or(""));
+    cmd.arg(
+        props
+            .write_makedeps
+            .map(|p| p.to_str().unwrap())
+            .unwrap_or(""),
+    );
+
+    println!("{:?}", cmd.get_args());
 
     let mut proc = cmd.spawn().expect("Failed to spawn javac");
     ExitStatusWrap(proc.wait().expect("Failed to wait for javac"))

@@ -14,10 +14,15 @@ import javax.tools.ToolProvider;
 
 public class Main {
     public static void main(String[] args) {
+        String classpath = args[args.length - 5];
         int optionsLen = Integer.parseInt(args[args.length - 4]);
         int compilationUnitsLen = Integer.parseInt(args[args.length - 3]);
         String manifestPath = args[args.length - 2];
         String makeManifestPath = args[args.length - 1];
+
+        // the javac classes don't provide a defined API to set the classpath
+        // pray this doesn't crash and burn when using a different jdk
+        System.setProperty("env.class.path", classpath);
 
         JavaCompiler systemJavaCompiler = ToolProvider.getSystemJavaCompiler();
         TrackingJavaFileManager fm = new TrackingJavaFileManager(

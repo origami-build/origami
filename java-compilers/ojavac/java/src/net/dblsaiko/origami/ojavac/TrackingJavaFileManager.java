@@ -14,7 +14,6 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
 
 public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
     private final TreeSet<Path> inputFiles = new TreeSet<>();
@@ -26,7 +25,6 @@ public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
 
     @Override
     public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind) throws IOException {
-        location = this.fixLocation(location);
         JavaFileObject fo = super.getJavaFileForInput(location, className, kind);
         this.trackInput(fo);
         return fo;
@@ -34,7 +32,6 @@ public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
 
     @Override
     public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind, FileObject sibling) throws IOException {
-        location = this.fixLocation(location);
         JavaFileObject fo = super.getJavaFileForOutput(location, className, kind, sibling);
         this.trackOutput(fo);
         return fo;
@@ -42,7 +39,6 @@ public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
 
     @Override
     public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
-        location = this.fixLocation(location);
         FileObject fo = super.getFileForInput(location, packageName, relativeName);
         this.trackInput(fo);
         return fo;
@@ -50,7 +46,6 @@ public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
 
     @Override
     public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling) throws IOException {
-        location = this.fixLocation(location);
         FileObject fo = super.getFileForOutput(location, packageName, relativeName, sibling);
         this.trackOutput(fo);
         return fo;
@@ -58,7 +53,6 @@ public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
 
     @Override
     public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds, boolean recurse) throws IOException {
-        location = this.fixLocation(location);
         Iterable<JavaFileObject> list = super.list(location, packageName, kinds, recurse);
         return () -> StreamSupport.stream(list.spliterator(), false).map(el -> (JavaFileObject) new TrackingJavaFileObject(el, this)).iterator();
     }
@@ -76,8 +70,6 @@ public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
 
     @Override
     public String inferBinaryName(Location location, JavaFileObject file) {
-        location = this.fixLocation(location);
-
         if (file instanceof JavaFileObjectDelegate delegate) {
             // unwrap because JavacFileManager uses instanceof checks on these
             // >_>
@@ -129,14 +121,6 @@ public class TrackingJavaFileManager extends StandardJavaFileManagerDelegate {
             }
             default -> throw new IllegalArgumentException("Don't know how to turn %s into a real path".formatted(uri));
         };
-    }
-
-    private Location fixLocation(Location location) {
-        if (location == StandardLocation.CLASS_PATH) {
-            location = StandardLocation.PLATFORM_CLASS_PATH;
-        }
-
-        return location;
     }
 
     public TreeSet<Path> getInputFiles() {
