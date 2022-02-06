@@ -14,43 +14,43 @@ impl<'a> AppExt for App<'a> {
                 .long("include")
                 .value_name("path")
                 .multiple_occurrences(true)
-                .about("Include source file paths"),
+                .help("Include source file paths"),
             Arg::new("link")
                 .short('l')
                 .long("link")
                 .value_name("path")
                 .multiple_occurrences(true)
-                .about("Link against compiled JAR/class file paths"),
+                .help("Link against compiled JAR/class file paths"),
             Arg::new("out-dir")
                 .short('o')
                 .long("out-dir")
                 .value_name("dir")
-                .about("Specify output directory (default: package root)"),
+                .help("Specify output directory (default: package root)"),
             Arg::new("package-root")
                 .long("package-root")
                 .value_name("dir")
-                .about("Specify package root (default: auto-detected)"),
+                .help("Specify package root (default: auto-detected)"),
             Arg::new("debug")
                 .short('g')
                 .long("debug")
-                .about("Generate debugging information"),
+                .help("Generate debugging information"),
             Arg::new("release")
                 .long("release")
                 .value_name("version")
-                .about("Set Java SE release to compile against"),
+                .help("Set Java SE release to compile against"),
             Arg::new("in-file")
                 .value_name("source-file")
                 .required(true)
-                .multiple(true)
-                .about("Java source file"),
+                .multiple_occurrences(true)
+                .help("Java source file"),
             Arg::new("write-deps")
                 .long("write-deps")
                 .value_name("file")
-                .about("Write dependency manifest"),
+                .help("Write dependency manifest"),
             Arg::new("write-makedeps")
                 .long("write-makedeps")
                 .value_name("file")
-                .about("Write dependency manifest in Make format"),
+                .help("Write dependency manifest in Make format"),
         ])
     }
 }
