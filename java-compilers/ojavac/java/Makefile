@@ -1,4 +1,8 @@
-JAVAC = ../../../target/debug/ojavac
+# if you don't have ojavac yet, set this to 1!
+BOOTSTRAP ?= 0
+
+JAVAC = ojavac
+JAVAC_BOOTSTRAP = javac
 JAR = jar
 
 CLASSES := \
@@ -22,7 +26,11 @@ ojavac.jar: $(OBJS)
 	cd $(SRCDIR) && $(JAR) -cf $(PWD)/$@ $(RELOBJS)
 
 %.class: %.java
+ifeq ($(BOOTSTRAP), 0)
 	$(JAVAC) --release $(JAVA_VERSION) --package-root $(SRCDIR) --write-makedeps $(patsubst %.class,%.d,$@) -I$(SRCDIR) $<
+else
+	$(JAVAC_BOOTSTRAP) -implicit:none --release $(JAVA_VERSION) -sourcepath $(SRCDIR) $<
+endif
 
 clean:
 	$(RM) ojavac.jar
