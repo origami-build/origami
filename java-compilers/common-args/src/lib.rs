@@ -57,23 +57,23 @@ impl<'a> AppExt for App<'a> {
 
 pub fn read_props(matches: &ArgMatches) -> CommonProps {
     let in_files = matches
-        .values_of_os("in-file")
+        .values_of("in-file")
         .map(|iter| iter.map(Path::new).collect())
         .unwrap_or_default();
     let include = matches
-        .values_of_os("include")
+        .values_of("include")
         .map(|iter| iter.map(Path::new).collect())
         .unwrap_or_default();
     let link = matches
-        .values_of_os("link")
+        .values_of("link")
         .map(|iter| iter.map(Path::new).collect())
         .unwrap_or_default();
-    let out_dir = matches.value_of_os("out-dir").map(Path::new);
-    let package_root = matches.value_of_os("package-root").map(Path::new);
+    let out_dir = matches.value_of("out-dir").map(Path::new);
+    let package_root = matches.value_of("package-root").map(Path::new);
     let debug = matches.is_present("debug");
     let release = matches.value_of("release");
-    let write_deps = matches.value_of_os("write-deps").map(Path::new);
-    let write_makedeps = matches.value_of_os("write-makedeps").map(Path::new);
+    let write_deps = matches.value_of("write-deps").map(Path::new);
+    let write_makedeps = matches.value_of("write-makedeps").map(Path::new);
 
     CommonProps {
         in_files,
