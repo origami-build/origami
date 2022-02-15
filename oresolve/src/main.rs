@@ -24,14 +24,18 @@ fn main() {
         .args(&[
             Arg::new("cache-dir")
                 .long("cache-dir")
-                .about("path to the directory dependencies will be cached in")
+                .help("path to the directory dependencies will be cached in")
+                .value_name("PATH")
                 .default_value("origami/cache"),
             Arg::new("update").short('u').long("update"),
+            Arg::new("write-compiler-flags").long("write-compiler-flags").value_name("FILE"),
             Arg::new("offline-only").short('O').long("offline-only"),
+            Arg::new("lock").short('l').long("lock"),
+            Arg::new("no-lock").short('L').long("no-lock"),
             Arg::new("verbose")
                 .short('v')
                 .long("verbose")
-                .about("be verbose (print more information)"),
+                .help("be verbose (print more information)"),
         ])
         .get_matches();
 

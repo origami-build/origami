@@ -1,25 +1,29 @@
-#![feature(termination_trait_lib)]
-
-use std::io::Write;
-use std::process::{ExitStatus, Termination};
+use std::ops::Deref;
+use std::path::Path;
 
 use clap::app_from_crate;
+use proc_exit::{Code, exit};
 
 use common_args::{read_props, AppExt};
 use jvmapi::jvm::JvmTask;
 use jvmapi::{JvmCommand, ProcessJvm};
 
-fn main() -> ExitStatusWrap {
+fn main() {
     let matches = app_from_crate!().add_javac_common_args().get_matches();
 
     let props = read_props(&matches);
 
-    let jar = include_bytes!("../java/ojavac.jar");
-    let mut tf = tempfile::NamedTempFile::new().expect("failed to create temporary file");
-    tf.write_all(jar).expect("failed to write jar contents");
+    let jar = JarFile::get();
+
+    // safety check so that you don't just get a class not found error from java
+    // that doesn't really say anything
+    if !jar.exists() {
+        exit(Err(Code::NOT_FOUND.with_message(format!("could not locate jar file '{}'", jar.display()))));
+    }
 
     let mut jvm = ProcessJvm::new();
-    jvm.with_classpath(&[tf.path()]);
+    jvm.with_classpath(&[&*jar]);
+    println!("{}", jar.display());
     let mut cmd = JvmCommand::new(&jvm, "net.dblsaiko.origami.ojavac.Main");
 
     cmd.arg("-implicit:none");
@@ -68,13 +72,53 @@ fn main() -> ExitStatusWrap {
     println!("{:?}", cmd.get_args());
 
     let mut proc = cmd.spawn().expect("Failed to spawn javac");
-    ExitStatusWrap(proc.wait().expect("Failed to wait for javac"))
+    exit(Code::from_status(proc.wait().expect("Failed to wait for javac")).ok())
 }
 
-struct ExitStatusWrap(ExitStatus);
+enum JarFile {
+    #[cfg(install)]
+    Installed(std::path::PathBuf),
+    #[cfg(not(install))]
+    Temp(tempfile::NamedTempFile),
+}
 
-impl Termination for ExitStatusWrap {
-    fn report(self) -> i32 {
-        self.0.code().unwrap_or(10)
+impl Deref for JarFile {
+    type Target = Path;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            #[cfg(install)]
+            JarFile::Installed(v) => &v,
+            #[cfg(not(install))]
+            JarFile::Temp(v) => v.path(),
+        }
+    }
+}
+
+impl JarFile {
+    #[cfg(not(install))]
+    fn get() -> Self {
+        use std::io::Write as _;
+
+        let jar = include_bytes!("../java/ojavac.jar");
+        let mut tf = tempfile::NamedTempFile::new().expect("failed to create temporary file");
+        tf.write_all(jar).expect("failed to write jar contents");
+        JarFile::Temp(tf)
+    }
+
+    #[cfg(install)]
+    fn get() -> Self {
+        let exec_dir = Path::new(origami_common::LIBEXECDIR);
+        let mut path = if exec_dir.is_relative() {
+            let mut path = std::env::current_exe().unwrap_or_default();
+            path.pop();
+            path.push(exec_dir);
+            path
+        } else {
+            exec_dir.to_path_buf()
+        };
+
+        path.push("ojavac.jar");
+        JarFile::Installed(path)
     }
 }

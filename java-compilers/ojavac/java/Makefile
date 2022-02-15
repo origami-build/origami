@@ -23,7 +23,7 @@ DEPS = $(OBJS:%.class=%.d)
 all: ojavac.jar
 
 ojavac.jar: $(OBJS)
-	cd $(SRCDIR) && $(JAR) -cf $(PWD)/$@ $(RELOBJS)
+	cd $(SRCDIR) && $(JAR) -cf $(CURDIR)/$@ $(RELOBJS)
 
 %.class: %.java
 ifeq ($(BOOTSTRAP), 0)

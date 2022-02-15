@@ -50,9 +50,9 @@ impl GlobalConfig {
                     Ok(file) => break file,
                     Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
                         if !printed_delay_warning {
-                            println!("notice: '{}' is being downloaded by another oresolve instance,\
-                            notice: if this hangs for a long time, or you are sure that no other oresolve\
-                            notice: instance is currently running, delete the file at\
+                            println!("notice: '{}' is being downloaded by another oresolve instance,\n\
+                            notice: if this hangs for a long time, or you are sure that no other oresolve\n\
+                            notice: instance is currently running, delete the file at\n\
                             notice: {}", file_name, temp_dest.canonicalize().unwrap().to_str().unwrap());
                             printed_delay_warning = true;
                         }

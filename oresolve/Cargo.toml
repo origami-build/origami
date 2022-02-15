@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 origami-common = { path = "../origami-common" }
-clap = "3.0.0-beta.2"
+clap = { version = "3.0.14", features = ["cargo"] }
 serde = { version = "1.0.118", features = ["derive"] }
 serde-xml-rs = "0.4.0"
 toml = { version = "0.5.8", features = ["preserve_order"] }
