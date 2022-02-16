@@ -39,3 +39,5 @@ clean:
 .PHONY: clean
 
 -include $(DEPS)
+
+.SUFFIXES:
