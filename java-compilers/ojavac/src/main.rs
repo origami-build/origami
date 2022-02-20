@@ -23,7 +23,6 @@ fn main() {
 
     let mut jvm = ProcessJvm::new();
     jvm.with_classpath(&[&*jar]);
-    println!("{}", jar.display());
     let mut cmd = JvmCommand::new(&jvm, "net.dblsaiko.origami.ojavac.Main");
 
     cmd.arg("-implicit:none");
@@ -68,8 +67,6 @@ fn main() {
             .map(|p| p.to_str().unwrap())
             .unwrap_or(""),
     );
-
-    println!("{:?}", cmd.get_args());
 
     let mut proc = cmd.spawn().expect("Failed to spawn javac");
     exit(Code::from_status(proc.wait().expect("Failed to wait for javac")).ok())
