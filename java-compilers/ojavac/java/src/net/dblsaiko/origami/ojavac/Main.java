@@ -110,6 +110,8 @@ public class Main {
                     for (Path inputFile : fm.getInputFiles()) {
                         pw.printf(" %s", stripPrefix(pwd, inputFile));
                     }
+
+                    pw.println();
                 }
             }
         } catch (IOException e) {
