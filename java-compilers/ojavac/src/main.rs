@@ -49,6 +49,10 @@ fn main() {
         cmd.arg(release);
     }
 
+    for arg in props.ap_args {
+        cmd.arg(format!("-A{}", arg));
+    }
+
     let javac_options_len = cmd.get_args().len();
 
     for file in props.in_files {

@@ -51,6 +51,11 @@ impl<'a> AppExt for App<'a> {
                 .long("write-makedeps")
                 .value_name("file")
                 .help("Write dependency manifest in Make format"),
+            Arg::new("ap-args")
+                .short('A')
+                .value_name("definition")
+                .multiple_occurrences(true)
+                .help("Pass options to annotation processors"),
         ])
     }
 }
@@ -74,6 +79,7 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
     let release = matches.value_of("release");
     let write_deps = matches.value_of("write-deps").map(Path::new);
     let write_makedeps = matches.value_of("write-makedeps").map(Path::new);
+    let ap_args = matches.values_of("ap-args").into_iter().flatten().collect();
 
     CommonProps {
         in_files,
@@ -85,6 +91,7 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
         release,
         write_deps,
         write_makedeps,
+        ap_args,
     }
 }
 
@@ -118,4 +125,6 @@ pub struct CommonProps<'a> {
     /// The path to output a manifest of input and output files for. If None,
     /// does not write the manifest.
     pub write_makedeps: Option<&'a Path>,
+
+    pub ap_args: Vec<&'a str>,
 }
