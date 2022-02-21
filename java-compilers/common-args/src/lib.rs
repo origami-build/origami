@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use clap::{App, Arg, ArgMatches};
+use clap::{App, Arg, ArgGroup, ArgMatches};
 
 pub trait AppExt {
     fn add_javac_common_args(self) -> Self;
@@ -56,7 +56,14 @@ impl<'a> AppExt for App<'a> {
                 .value_name("definition")
                 .multiple_occurrences(true)
                 .help("Pass options to annotation processors"),
+            Arg::new("no-class-gen")
+                .short('E')
+                .help("Don't output class files"),
+            Arg::new("no-ap")
+                .short('P')
+                .help("Don't run annotation processors"),
         ])
+        .groups([ArgGroup::new("output-config").args(&["no-class-gen", "no-ap"])])
     }
 }
 
@@ -80,6 +87,8 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
     let write_deps = matches.value_of("write-deps").map(Path::new);
     let write_makedeps = matches.value_of("write-makedeps").map(Path::new);
     let ap_args = matches.values_of("ap-args").into_iter().flatten().collect();
+    let no_ap = matches.is_present("no-ap");
+    let no_class_gen = matches.is_present("no-class-gen");
 
     CommonProps {
         in_files,
@@ -92,6 +101,8 @@ pub fn read_props(matches: &ArgMatches) -> CommonProps {
         write_deps,
         write_makedeps,
         ap_args,
+        no_ap,
+        no_class_gen,
     }
 }
 
@@ -117,7 +128,7 @@ pub struct CommonProps<'a> {
 
     /// The JVM release version to compile for.
     pub release: Option<&'a str>,
-    
+
     /// The path to output a manifest of input and output files for. If None,
     /// does not write the manifest.
     pub write_deps: Option<&'a Path>,
@@ -127,4 +138,6 @@ pub struct CommonProps<'a> {
     pub write_makedeps: Option<&'a Path>,
 
     pub ap_args: Vec<&'a str>,
+    pub no_ap: bool,
+    pub no_class_gen: bool,
 }

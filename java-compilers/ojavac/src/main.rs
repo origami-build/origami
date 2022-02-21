@@ -2,7 +2,7 @@ use std::ops::Deref;
 use std::path::Path;
 
 use clap::app_from_crate;
-use proc_exit::{Code, exit};
+use proc_exit::{exit, Code};
 
 use common_args::{read_props, AppExt};
 use jvmapi::jvm::JvmTask;
@@ -18,7 +18,10 @@ fn main() {
     // safety check so that you don't just get a class not found error from java
     // that doesn't really say anything
     if !jar.exists() {
-        exit(Err(Code::NOT_FOUND.with_message(format!("could not locate jar file '{}'", jar.display()))));
+        exit(Err(Code::NOT_FOUND.with_message(format!(
+            "could not locate jar file '{}'",
+            jar.display()
+        ))));
     }
 
     let mut jvm = ProcessJvm::new();
@@ -51,6 +54,17 @@ fn main() {
 
     for arg in props.ap_args {
         cmd.arg(format!("-A{}", arg));
+    }
+
+    match (props.no_ap, props.no_class_gen) {
+        (false, false) => {}
+        (false, true) => {
+            cmd.arg("-proc:only");
+        }
+        (true, false) => {
+            cmd.arg("-proc:none");
+        }
+        (true, true) => unreachable!(),
     }
 
     let javac_options_len = cmd.get_args().len();
