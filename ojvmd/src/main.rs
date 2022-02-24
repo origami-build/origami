@@ -20,14 +20,14 @@ fn main() {
             Arg::new("tcp")
                 .short('T')
                 .long("tcp")
-                .value_name("address")
-                .about("Listen on a TCP socket")
+                .value_name("ADDRESS")
+                .help("Listen on a TCP socket")
                 .multiple_occurrences(true),
             Arg::new("unix")
                 .short('S')
                 .long("unix")
-                .value_name("path")
-                .about("Listen on a Unix domain socket")
+                .value_name("PATH")
+                .help("Listen on a Unix domain socket")
                 .multiple_occurrences(true),
         ])
         .group(

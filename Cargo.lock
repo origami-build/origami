@@ -819,6 +819,7 @@ dependencies = [
  "jvmapi-proto",
  "lazy_static",
  "log",
+ "origami-common",
  "pin-project-lite 0.2.7",
  "serde",
  "serde_json",

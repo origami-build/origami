@@ -1,13 +1,11 @@
-use std::io::Write;
-use std::sync::{Arc, Mutex, MutexGuard, Weak};
+use std::ops::Deref;
+use std::path::Path;
 
 use async_std::task;
 use async_std::task::JoinHandle;
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use lazy_static::lazy_static;
-use tempfile::{NamedTempFile, TempPath};
 
 use crate::framed::{FramedRead, FramedWrite};
 use crate::jvm::command::Stdio;
@@ -22,30 +20,6 @@ pub mod sync_task;
 
 const MAIN_CLASS: &str = "net.dblsaiko.origami.taskdispatcher.Main";
 
-/// Extracts the task-dispatcher.jar to a temporary path if necessary and
-/// returns that path.
-fn get_lib_path() -> Arc<TempPath> {
-    lazy_static! {
-        static ref RC: Mutex<Weak<TempPath>> = Mutex::new(Weak::new());
-    }
-
-    let mut a: MutexGuard<Weak<TempPath>> = RC.lock().unwrap();
-
-    if let Some(pb) = a.upgrade() {
-        pb
-    } else {
-        let mut tempfile = NamedTempFile::new().expect("Failed to create temp jar file");
-        let bytes = include_bytes!("../../../../task-dispatcher/build/libs/task-dispatcher.jar");
-        tempfile
-            .write_all(bytes)
-            .expect("Failed to write temp jar file");
-        let path = tempfile.into_temp_path();
-        let arc = Arc::new(path);
-        *a = Arc::downgrade(&arc);
-        arc
-    }
-}
-
 /// A [`Jvm`] that runs all submitted tasks in the same process.
 pub struct DirectJvm {
     process: AsyncJvmProcess,
@@ -55,16 +29,16 @@ pub struct DirectJvm {
     // this needs to exist as long as the JVM is running on Windows (and also to
     // potentially prevent having to extract it multiple times), so we keep it
     // around
-    lib_path: Arc<TempPath>,
+    _lib_path: JarFile,
 }
 
 impl DirectJvm {
     /// Spawns a JVM using the given [`ProcessJvm`] that runs the dispatcher
     /// that accepts submitted tasks.
     pub fn spawn(mut host: ProcessJvm) -> Result<Self, Error> {
-        let lib_path = get_lib_path();
+        let lib_path = JarFile::get();
         host.with_java_arg("--enable-preview");
-        host.with_classpath(&[&**lib_path]);
+        host.with_classpath(&[&*lib_path]);
 
         let mut process = block_on(
             async_command::JvmCommand::new(host, MAIN_CLASS)
@@ -88,7 +62,7 @@ impl DirectJvm {
             process,
             task,
             interface,
-            lib_path,
+            _lib_path: lib_path,
         })
     }
 }
@@ -181,3 +155,66 @@ impl DirectJvm {
 
 type PacketWriter = FramedWrite<async_process::ChildStdin, ProtocolCodec>;
 type PacketReader = FramedRead<async_process::ChildStdout, ProtocolCodec>;
+
+enum JarFile {
+    #[cfg(install)]
+    Installed(std::path::PathBuf),
+    #[cfg(not(install))]
+    Temp(std::sync::Arc<tempfile::TempPath>),
+}
+
+impl Deref for JarFile {
+    type Target = Path;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            #[cfg(install)]
+            JarFile::Installed(v) => &v,
+            #[cfg(not(install))]
+            JarFile::Temp(v) => v,
+        }
+    }
+}
+
+impl JarFile {
+    #[cfg(not(install))]
+    fn get() -> Self {
+        use std::io::Write as _;
+        use std::sync::{Arc, Mutex, MutexGuard, Weak};
+        use tempfile::{NamedTempFile, TempPath};
+
+        lazy_static::lazy_static! {
+            static ref RC: Mutex<Weak<TempPath>> = Mutex::new(Weak::new());
+        }
+
+        let mut a: MutexGuard<Weak<TempPath>> = RC.lock().unwrap();
+
+        if let Some(pb) = a.upgrade() {
+            JarFile::Temp(pb)
+        } else {
+            let mut tf = NamedTempFile::new().expect("failed to create temporary file");
+            let jar = include_bytes!("../../../../task-dispatcher/task-dispatcher.jar");
+            tf.write_all(jar).expect("failed to write jar contents");
+            let path = tf.into_temp_path();
+            let arc = Arc::new(path);
+            *a = Arc::downgrade(&arc);
+            JarFile::Temp(arc)
+        }
+    }
+
+    #[cfg(install)]
+    fn get() -> Self {
+        let exec_dir = Path::new(origami_common::LIBEXECDIR);
+        let mut path = if exec_dir.is_relative() {
+            let mut path = std::env::current_exe().unwrap_or_default();
+            path.pop();
+            path.push(exec_dir);
+            path
+        } else {
+            exec_dir.to_path_buf()
+        };
+
+        path.push("task-dispatcher.jar");
+        JarFile::Installed(path)
+    }
+}

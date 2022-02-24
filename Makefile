@@ -27,11 +27,13 @@ install:
 	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(libexecdir) || true
 	$(INSTALL) -m755 $(addprefix $(CARGO_OUTDIR)/,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(INSTALL) java-compilers/ojavac/java/ojavac.jar $(DESTDIR)$(libexecdir)
+	$(INSTALL) task-dispatcher/task-dispatcher.jar $(DESTDIR)$(libexecdir)
 
 .PHONY: uninstall
 uninstall:
 	$(RM) $(addprefix $(DESTDIR)$(bindir)/,$(TARGETS))
 	$(RM) $(DESTDIR)$(libexecdir)/ojavac.jar
+	$(RM) $(DESTDIR)$(libexecdir)/task-dispatcher.jar
 
 .PHONY: clean
 clean:
@@ -45,5 +47,9 @@ cargo:
 .PHONY: ojavac-java
 ojavac-java:
 	$(MAKE) -C java-compilers/ojavac/java BOOTSTRAP=1 ojavac.jar
+
+.PHONY: task-dispatcher
+task-dispatcher:
+	$(MAKE) -C task-dispatcher BOOTSTRAP=1 task-dispatcher.jar
 
 .SUFFIXES:
